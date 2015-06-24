@@ -2363,6 +2363,10 @@ cdef class MixedIntegerLinearProgram(SageObject):
         """
         return self._backend
 
+    def get_variables(self):
+        r"""
+        """
+        return [k for k in self._variables.keys()]
 
 class MIPSolverException(RuntimeError):
     r"""
