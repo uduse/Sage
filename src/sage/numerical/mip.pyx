@@ -2388,17 +2388,18 @@ cdef class MixedIntegerLinearProgram(SageObject):
         """
         return [k for k in self._variables.keys()]
 
-    def construct_interactive_lp(self,x='x',form=None):
+    def construct_interactive_lp(self,x='x',form='standard'):
         r"""
         Returns an instance of class InteractiveLPProblem or InteractiveLPProblemStandardForm
-        that is constructed based on a given MixedIntegerLinearProgram.
+        that is constructed based on a given MixedIntegerLinearProgram and a list of basic
+        variables (the basis) if standard form is chosen (by default) or None, as a 2-tuples
 
         INPUT:
 
         - ``x`` -- (default: ``"x"``) a vector of decision variables or a
           string giving the base name
 
-        - ``form`` -- (default: ``None``) a string specifying return type: either
+        - ``form`` -- (default: ``"standard"``) a string specifying return type: either
           ``None``, or ``"std"`` or ``standard``, respectively returns an instance of
           InteractiveLPProblem or an instance of InteractiveLPProblemStandardForm
 
@@ -2408,9 +2409,12 @@ cdef class MixedIntegerLinearProgram(SageObject):
             sage: x = p.new_variable(nonnegative=True)
             sage: p.add_constraint( x[0] + x[1] <= 2 )
             sage: p.set_objective( 2*x[0] + 3*x[1] )
-            sage: q = p.construct_interactiveLPProblem(form='standard')
-            sage: view(q) #not tested
-
+            sage: t = p.construct_interactive_lp(form='standard')
+            sage: lp = t[0]
+            sage: basis = t[1]
+            sage: view(lp) #not tested
+            sage: d = lp.dictionary(*basis)
+            sage: view(d) #not tested
         """
         # Construct 'A'
         coef_matrix = []
