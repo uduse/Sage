@@ -2409,7 +2409,7 @@ cdef class MixedIntegerLinearProgram(SageObject):
             sage: p.add_constraint( x[0] + x[1] <= 2 )
             sage: p.set_objective( 2*x[0] + 3*x[1] )
             sage: q = p.construct_interactiveLPProblem(form='standard')
-            sage: view(q)
+            sage: view(q) #not tested
 
         """
         # Construct 'A'
