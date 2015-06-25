@@ -2368,6 +2368,46 @@ cdef class MixedIntegerLinearProgram(SageObject):
         """
         return [k for k in self._variables.keys()]
 
+    def construct_interactiveLPProblem(self,x='x',form=None):
+        r"""
+        """
+        # Construct 'A'
+        coef_matrix = []
+        for constraint in self.constraints():
+            coef_row = zip(constraint[1][0],constraint[1][1])
+            coef_row.sort()
+            coef_matrix.append([b for a,b in coef_row])
+
+        # Construct 'b'
+        upper_bound_vector = []
+        for constraint in self.constraints():
+            upper_bound_vector.append(constraint[2])
+
+        # Raise exception if exist lower bound
+        for constraint in self.constraints():
+            if constraint[0] != None:
+                raise ValueError('Problem variables cannot have lower bounds')
+
+        # Construct 'c'
+        back_end = self.get_backend()
+        objective_coefs_vector = []
+        for i in range(self.number_of_variables()):
+            objective_coefs_vector.append(back_end.objective_coefficient(i))
+
+        # Get values of the basic variables
+        A = coef_matrix
+        b = upper_bound_vector
+        c = objective_coefs_vector
+
+        if form == None:
+            from sage.numerical.interactive_simplex_method import InteractiveLPProblem
+            return InteractiveLPProblem(A, b, c, x)
+        elif form == 'standard' or form == 'std':
+            from sage.numerical.interactive_simplex_method import InteractiveLPProblemStandardForm
+            return InteractiveLPProblemStandardForm(A, b, c, x)
+        else:
+            raise ValueError('Form of construct_interactiveLPProblem() is either \'None\' or \'standard\'')
+
 class MIPSolverException(RuntimeError):
     r"""
     Exception raised when the solver fails.
