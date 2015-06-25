@@ -2442,10 +2442,20 @@ cdef class MixedIntegerLinearProgram(SageObject):
 
         if form == None:
             from sage.numerical.interactive_simplex_method import InteractiveLPProblem
-            return InteractiveLPProblem(A, b, c, x)
+            return InteractiveLPProblem(A, b, c, x), None
         elif form == 'standard' or form == 'std':
             from sage.numerical.interactive_simplex_method import InteractiveLPProblemStandardForm
-            return InteractiveLPProblemStandardForm(A, b, c, x)
+            lp = InteractiveLPProblemStandardForm(A, b, c, x)
+            basic_variables = []
+            for i, e in enumerate(lp.x()):
+              from sage.numerical.backend.glpk_backend import *
+              if back_end.get_col_stat(i) == 1:
+                # TODO: turn to constants in back end
+                basic_variables.append(str(e))
+            for i, e in enumerate(lp.slack_variables()):
+              if back_end.get_row_stat(i) == 1:
+                basic_variables.append(str(e))
+            return lp, basic_variables
         else:
             raise ValueError('Form of construct_interactiveLPProblem() is either \'None\' or \'standard\'')
 
