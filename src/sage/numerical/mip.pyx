@@ -2365,6 +2365,27 @@ cdef class MixedIntegerLinearProgram(SageObject):
 
     def get_variables(self):
         r"""
+        Returns a list of the variables used in the problem.
+
+        Elements in the returned list can be used in set functions in the class.  
+
+        EXAMPLE:
+
+        This example sets all variables in a given problem into binary variables.
+
+            sage: p = MixedIntegerLinearProgram(solver="GLPK")
+            sage: x = p.new_variable(integer=True, nonnegative=True)
+            sage: p.add_constraint( -x[0] + x[1] <= 2 )
+            sage: for v in p.get_variables():
+            ....:     p.set_binary(v)
+            sage: p.show()
+            Maximization:
+
+            Constraints:
+              - x_0 + x_1 <= 2.0
+            Variables:
+              x_0 is a boolean variable (min=0.0, max=1.0)
+              x_1 is a boolean variable (min=0.0, max=1.0)
         """
         return [k for k in self._variables.keys()]
 
