@@ -2371,7 +2371,7 @@ cdef class MixedIntegerLinearProgram(SageObject):
 
         EXAMPLE:
 
-        This example sets all variables in a given problem into binary variables.
+        This example change all variables in a given problem to binary variables::
 
             sage: p = MixedIntegerLinearProgram(solver="GLPK")
             sage: x = p.new_variable(integer=True, nonnegative=True)
@@ -2380,7 +2380,6 @@ cdef class MixedIntegerLinearProgram(SageObject):
             ....:     p.set_binary(v)
             sage: p.show()
             Maximization:
-
             Constraints:
               - x_0 + x_1 <= 2.0
             Variables:
