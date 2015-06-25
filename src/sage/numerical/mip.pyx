@@ -2448,12 +2448,12 @@ cdef class MixedIntegerLinearProgram(SageObject):
             lp = InteractiveLPProblemStandardForm(A, b, c, x)
             basic_variables = []
             for i, e in enumerate(lp.x()):
-              from sage.numerical.backend.glpk_backend import *
-              if back_end.get_col_stat(i) == 1:
-                # TODO: turn to constants in back end
+              import sage.numerical.backends.glpk_backend as glpk_backend 
+              # glp_bs: status that means "basic variable"
+              if back_end.get_col_stat(i) == glpk_backend.glp_bs:
                 basic_variables.append(str(e))
             for i, e in enumerate(lp.slack_variables()):
-              if back_end.get_row_stat(i) == 1:
+              if back_end.get_row_stat(i) == glpk_backend.glp_bs:
                 basic_variables.append(str(e))
             return lp, basic_variables
         else:
