@@ -2388,7 +2388,7 @@ cdef class MixedIntegerLinearProgram(SageObject):
         """
         return [k for k in self._variables.keys()]
 
-    def construct_interactiveLPProblem(self,x='x',form=None):
+    def construct_interactive_lp(self,x='x',form=None):
         r"""
         Returns an instance of class InteractiveLPProblem or InteractiveLPProblemStandardForm
         that is constructed based on a given MixedIntegerLinearProgram.
