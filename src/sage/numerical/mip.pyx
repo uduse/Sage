@@ -2390,6 +2390,27 @@ cdef class MixedIntegerLinearProgram(SageObject):
 
     def construct_interactiveLPProblem(self,x='x',form=None):
         r"""
+        Returns an instance of class InteractiveLPProblem or InteractiveLPProblemStandardForm
+        that is constructed based on a given MixedIntegerLinearProgram.
+
+        INPUT:
+
+        - ``x`` -- (default: ``"x"``) a vector of decision variables or a
+          string giving the base name
+
+        - ``form`` -- (default: ``None``) a string specifying return type: either
+          ``None``, or ``"std"`` or ``standard``, respectively returns an instance of
+          InteractiveLPProblem or an instance of InteractiveLPProblemStandardForm
+
+        EXAMPLE::
+
+            sage: p = MixedIntegerLinearProgram()
+            sage: x = p.new_variable(nonnegative=True)
+            sage: p.add_constraint( x[0] + x[1] <= 2 )
+            sage: p.set_objective( 2*x[0] + 3*x[1] )
+            sage: q = p.construct_interactiveLPProblem(form='standard')
+            sage: view(q)
+
         """
         # Construct 'A'
         coef_matrix = []
