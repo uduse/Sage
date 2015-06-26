@@ -2388,7 +2388,7 @@ cdef class MixedIntegerLinearProgram(SageObject):
         """
         return [k for k in self._variables.keys()]
 
-    def construct_interactive_lp(self,x='x',form='standard'):
+    def construct_interactive_lp(self,form='standard'):
         r"""
         Returns an instance of class InteractiveLPProblem or InteractiveLPProblemStandardForm
         that is constructed based on a given MixedIntegerLinearProgram and a list of basic
@@ -2439,10 +2439,14 @@ cdef class MixedIntegerLinearProgram(SageObject):
         for i in range(self.number_of_variables()):
             objective_coefs_vector.append(back_end.objective_coefficient(i))
 
-        # Get values of the basic variables
+        # Construct 'x'
+        names = [back_end.col_name(i) for i in range(back_end.ncols())]
+        formatted_names = [s.replace('[','_').strip(']') for s in names ]
+
         A = coef_matrix
         b = upper_bound_vector
         c = objective_coefs_vector
+        x = formatted_names
 
         if form == None:
             from sage.numerical.interactive_simplex_method import InteractiveLPProblem
