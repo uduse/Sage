@@ -2445,17 +2445,24 @@ cdef class MixedIntegerLinearProgram(SageObject):
         names = [back_end.col_name(i) for i in range(back_end.ncols())]
         formatted_names = [s.replace('[','_').strip(']') for s in names ]
 
+        # Construct slack names
+        slack_names = [back_end.row_name(i) for i in range(back_end.nrows())]
+        for i, s in enumerate(slack_names):
+            if s =='':
+                slack_names[i] = 'w_' + str(i)
+
         A = coef_matrix
         b = upper_bound_vector
         c = objective_coefs_vector
         x = formatted_names
+        slack_names = slack_names
 
         if form == None:
             from sage.numerical.interactive_simplex_method import InteractiveLPProblem
             return InteractiveLPProblem(A, b, c, x), None
         elif form == 'standard' or form == 'std':
             from sage.numerical.interactive_simplex_method import InteractiveLPProblemStandardForm
-            lp = InteractiveLPProblemStandardForm(A, b, c, x)
+            lp = InteractiveLPProblemStandardForm(A, b, c, x, slack_variables=slack_names)
             basic_variables = []
             for i, e in enumerate(lp.x()):
               import sage.numerical.backends.glpk_backend as glpk_backend 
