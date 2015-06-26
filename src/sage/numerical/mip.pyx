@@ -2390,9 +2390,7 @@ cdef class MixedIntegerLinearProgram(SageObject):
 
     def construct_interactive_lp(self,form='standard'):
         r"""
-        Returns an instance of class InteractiveLPProblem or InteractiveLPProblemStandardForm
-        that is constructed based on a given MixedIntegerLinearProgram and a list of basic
-        variables (the basis) if standard form is chosen (by default) or None, as a 2-tuples
+        Returns an InteractiveLPProblem and its basis.
 
         INPUT:
 
@@ -2403,19 +2401,35 @@ cdef class MixedIntegerLinearProgram(SageObject):
           ``None``, or ``"std"`` or ``standard``, respectively returns an instance of
           InteractiveLPProblem or an instance of InteractiveLPProblemStandardForm
 
+        OUTPUT:
+
+        A 2-tuple consists of an instance of class InteractiveLPProblem or InteractiveLPProblemStandardForm
+        that is constructed based on a given MixedIntegerLinearProgram, and a list of basic
+        variables (the basis) if standard form is chosen (by default), otherwise a None.
+
         EXAMPLE::
 
-            sage: p = MixedIntegerLinearProgram(names=['A'])
+            sage: p = MixedIntegerLinearProgram(names=['m'])
             sage: x = p.new_variable(nonnegative=True)
-            sage: y = p.new_variable(nonnegative=True, name='B')
+            sage: y = p.new_variable(nonnegative=True, name='n')
             sage: v = p.new_variable(nonnegative=True)
-            sage: p.add_constraint( x[0] + 7*y[0] + v[0]<= 2, name='K' )
-            sage: p.add_constraint( x[1] + 2*y[0] - v[0] <= 2 )
-            sage: p.add_constraint( x[1] + y[0] <= 2, name='L' )
+            sage: p.add_constraint( x[0] + x[1] - 7*y[0] + v[0]<= 2, name='K' )
+            sage: p.add_constraint( x[1] + 2*y[0] - v[0] <= 3 )
+            sage: p.add_constraint( 5*x[0] + y[0] <= 21, name='L' )
             sage: p.set_objective( 2*x[0] + 3*x[1] + 4*y[0] + 3*v[0])
             sage: lp, basis = p.construct_interactive_lp()
             sage: basis
             ['K', 'w_1', 'L']
+            sage: lp.constraint_coefficients()
+            [ 1.0  1.0 -7.0  1.0]
+            [ 0.0  1.0  2.0 -1.0]
+            [ 5.0  0.0  1.0  0.0]
+            sage: lp.b()
+            (2.0, 3.0, 21.0)
+            sage: lp.objective_coefficients()
+            (2.0, 3.0, 4.0, 3.0)
+            sage: lp.decision_variables()
+            (m_0, m_1, n_0, x_3)
             sage: view(lp) #not tested
             sage: d = lp.dictionary(*basis)
             sage: view(d) #not tested
