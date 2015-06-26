@@ -2419,9 +2419,11 @@ cdef class MixedIntegerLinearProgram(SageObject):
         # Construct 'A'
         coef_matrix = []
         for constraint in self.constraints():
-            coef_row = zip(constraint[1][0],constraint[1][1])
-            coef_row.sort()
-            coef_matrix.append([b for a,b in coef_row])
+            coef_row = dict(zip(constraint[1][0],constraint[1][1]))
+            for i in range(self.number_of_variables()):
+                if i not in coef_row.keys():
+                    coef_row[i] = 0
+            coef_matrix.append([b for a,b in coef_row.items()])
 
         # Construct 'b'
         upper_bound_vector = []
