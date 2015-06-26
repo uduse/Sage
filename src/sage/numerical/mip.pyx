@@ -2405,13 +2405,19 @@ cdef class MixedIntegerLinearProgram(SageObject):
 
         EXAMPLE::
 
-            sage: p = MixedIntegerLinearProgram()
+            sage: p = MixedIntegerLinearProgram(names=['A'])
             sage: x = p.new_variable(nonnegative=True)
-            sage: p.add_constraint( x[0] + x[1] <= 2 )
-            sage: p.set_objective( 2*x[0] + 3*x[1] )
-            sage: t = p.construct_interactive_lp(form='standard')
+            sage: y = p.new_variable(nonnegative=True, name='B')
+            sage: v = p.new_variable(nonnegative=True)
+            sage: p.add_constraint( x[0] + 7*y[0] + v[0]<= 2, name='K' )
+            sage: p.add_constraint( x[1] + 2*y[0] - v[0] <= 2 )
+            sage: p.add_constraint( x[1] + y[0] <= 2, name='L' )
+            sage: p.set_objective( 2*x[0] + 3*x[1] + 4*y[0] + 3*v[0])
+            sage: t = p.construct_interactive_lp()
             sage: lp = t[0]
             sage: basis = t[1]
+            sage: basis
+            ['K', 'w_1', 'L']
             sage: view(lp) #not tested
             sage: d = lp.dictionary(*basis)
             sage: view(d) #not tested
