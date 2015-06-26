@@ -2413,9 +2413,7 @@ cdef class MixedIntegerLinearProgram(SageObject):
             sage: p.add_constraint( x[1] + 2*y[0] - v[0] <= 2 )
             sage: p.add_constraint( x[1] + y[0] <= 2, name='L' )
             sage: p.set_objective( 2*x[0] + 3*x[1] + 4*y[0] + 3*v[0])
-            sage: t = p.construct_interactive_lp()
-            sage: lp = t[0]
-            sage: basis = t[1]
+            sage: lp, basis = p.construct_interactive_lp()
             sage: basis
             ['K', 'w_1', 'L']
             sage: view(lp) #not tested
