@@ -2442,8 +2442,11 @@ cdef class MixedIntegerLinearProgram(SageObject):
             objective_coefs_vector.append(back_end.objective_coefficient(i))
 
         # Construct 'x'
-        names = [back_end.col_name(i) for i in range(back_end.ncols())]
-        formatted_names = [s.replace('[','_').strip(']') for s in names ]
+        raw_basic_names = [back_end.col_name(i) for i in range(back_end.ncols())]
+        formatted_basic_names = [s.replace('[','_').strip(']') for s in raw_basic_names ]
+        for i, s in enumerate(formatted_basic_names):
+            if s == '':
+                formatted_basic_names[i] = 'x_' + str(i)
 
         # Construct slack names
         slack_names = [back_end.row_name(i) for i in range(back_end.nrows())]
@@ -2454,15 +2457,15 @@ cdef class MixedIntegerLinearProgram(SageObject):
         A = coef_matrix
         b = upper_bound_vector
         c = objective_coefs_vector
-        x = formatted_names
-        slack_names = slack_names
+        x = formatted_basic_names
+        w = slack_names
 
         if form == None:
             from sage.numerical.interactive_simplex_method import InteractiveLPProblem
             return InteractiveLPProblem(A, b, c, x), None
         elif form == 'standard' or form == 'std':
             from sage.numerical.interactive_simplex_method import InteractiveLPProblemStandardForm
-            lp = InteractiveLPProblemStandardForm(A, b, c, x, slack_variables=slack_names)
+            lp = InteractiveLPProblemStandardForm(A, b, c, x, slack_variables=w)
             basic_variables = []
             for i, e in enumerate(lp.x()):
               import sage.numerical.backends.glpk_backend as glpk_backend 
