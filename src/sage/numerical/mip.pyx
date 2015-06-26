@@ -2441,12 +2441,10 @@ cdef class MixedIntegerLinearProgram(SageObject):
             for i in range(self.number_of_variables()):
                 if i not in coef_row.keys():
                     coef_row[i] = 0
-            coef_matrix.append([b for a,b in coef_row.items()])
+            coef_matrix.append([b for a,b in sorted(coef_row.items())])
 
         # Construct 'b'
-        upper_bound_vector = []
-        for constraint in self.constraints():
-            upper_bound_vector.append(constraint[2])
+        upper_bound_vector = [c[2] for c in self.constraints()]
 
         # Raise exception if exist lower bound
         for constraint in self.constraints():
@@ -2455,27 +2453,26 @@ cdef class MixedIntegerLinearProgram(SageObject):
 
         # Construct 'c'
         back_end = self.get_backend()
-        objective_coefs_vector = []
-        for i in range(self.number_of_variables()):
-            objective_coefs_vector.append(back_end.objective_coefficient(i))
+        def get_obj_coef(i):
+            return back_end.objective_coefficient(i)
+        objective_coefs_vector = [get_obj_coef(i) for i in range(self.number_of_variables())]
+
+        def format(name, prefix, index):
+            if name:
+                return name.replace('[','_').strip(']')
+            else:
+                return prefix + '_' + str(i)
 
         # Construct 'x'
-        raw_basic_names = [back_end.col_name(i) for i in range(back_end.ncols())]
-        formatted_basic_names = [s.replace('[','_').strip(']') for s in raw_basic_names ]
-        for i, s in enumerate(formatted_basic_names):
-            if s == '':
-                formatted_basic_names[i] = 'x_' + str(i)
+        basic_names = [format(back_end.col_name(i), 'x', i) for i in range(back_end.ncols())]
 
         # Construct slack names
-        slack_names = [back_end.row_name(i) for i in range(back_end.nrows())]
-        for i, s in enumerate(slack_names):
-            if s =='':
-                slack_names[i] = 'w_' + str(i)
+        slack_names = [format(back_end.row_name(i), 'w', i) for i in range(back_end.nrows())]
 
         A = coef_matrix
         b = upper_bound_vector
         c = objective_coefs_vector
-        x = formatted_basic_names
+        x = basic_names
         w = slack_names
 
         if form == None:
