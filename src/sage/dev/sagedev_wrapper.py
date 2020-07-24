@@ -69,7 +69,7 @@ class SageDevWrapper(object):
         sage: config['trac']['password'] = 'secret'
         sage: dev = DoctestSageDevWrapper(config, server)
         sage: UI = dev._UI
-        sage: dev._pull_master_branch()
+        sage: dev._pull_main_branch()
         sage: dev._chdir()
 
     ``create_ticket`` silently fails for a wrapper::
@@ -213,7 +213,7 @@ class SageDevWrapper(object):
                              " detached head state. This is probably a bug in sagedev.")
                     UI.info("Use {0} and {1} to restore your repository to a clean state.",
                             self._sagedev._format_command("clean"), 
-                            self._sagedev._format_command("checkout", branch="master"))
+                            self._sagedev._format_command("checkout", branch="main"))
                     raise
                 except InvalidStateError as e:
                     UI.error("Unexpectedly your repository was found to be in a"

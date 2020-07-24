@@ -54,7 +54,7 @@ class DoctestSageDevWrapper(sage.dev.sagedev_wrapper.SageDevWrapper):
         self._UI = sagedev._UI
 
         self._wrap("_chdir")
-        self._wrap("_pull_master_branch")
+        self._wrap("_pull_main_branch")
 
 class DoctestSageDev(sage.dev.sagedev.SageDev):
     r"""
@@ -98,9 +98,9 @@ class DoctestSageDev(sage.dev.sagedev.SageDev):
 
         sage.dev.sagedev.SageDev.__init__(self, config, UI, trac, git)
 
-    def _pull_master_branch(self):
+    def _pull_main_branch(self):
         r"""
-        Pull the master branch of the repository of the
+        Pull the main branch of the repository of the
         :class:`trac_server.DoctestTracServer` into the local repository.
 
         EXAMPLES::
@@ -109,14 +109,14 @@ class DoctestSageDev(sage.dev.sagedev.SageDev):
             sage: from sage.dev.test.config import DoctestConfig
             sage: from sage.dev.test.trac_server import DoctestTracServer
             sage: dev = DoctestSageDev(DoctestConfig(), DoctestTracServer())
-            sage: dev._pull_master_branch()
+            sage: dev._pull_main_branch()
         """
         import os
         old_cwd = os.getcwd()
         self._chdir()
         try:
             from sage.dev.sagedev import MASTER_BRANCH
-            if MASTER_BRANCH != "master":
+            if MASTER_BRANCH != "main":
                 self.git.super_silent.chechkout("-b",MASTER_BRANCH)
                 self.git.super_silent.checkout(MASTER_BRANCH)
             self.git.super_silent.pull(self._trac_server.git._config['src'], MASTER_BRANCH)
@@ -154,7 +154,7 @@ def single_user_setup():
     config = DoctestConfig()
     config['trac']['password'] = 'secret'
     dev = DoctestSageDevWrapper(config, server)
-    dev._pull_master_branch()
+    dev._pull_main_branch()
     dev._chdir()
     return dev, config, dev._UI, server
 
@@ -195,11 +195,11 @@ def two_user_setup():
     config_alice = DoctestConfig('alice')
     config_alice['trac']['password'] = 'secret'
     alice = DoctestSageDevWrapper(config_alice, server)
-    alice._pull_master_branch()
+    alice._pull_main_branch()
 
     config_bob = DoctestConfig('bob')
     config_bob['trac']['password'] = 'secret'
     bob = DoctestSageDevWrapper(config_bob, server)
-    bob._pull_master_branch()
+    bob._pull_main_branch()
 
     return alice, config_alice, bob, config_bob, server

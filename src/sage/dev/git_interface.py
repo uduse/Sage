@@ -106,7 +106,7 @@ class GitProxy(object):
 
             sage: git._run_git('status', (), {})
             (0,
-             'On branch master\n\nInitial commit\n\nnothing to commit (create/copy files and use "git add" to track)\n',
+             'On branch main\n\nInitial commit\n\nnothing to commit (create/copy files and use "git add" to track)\n',
              '',
              'git -c user.email=doc@test.test -c user.name=doctest status')
 
@@ -203,7 +203,7 @@ class GitProxy(object):
             sage: os.chdir(config['git']['src'])
 
             sage: git._execute('status')
-            On branch master
+            On branch main
             <BLANKLINE>
             Initial commit
             <BLANKLINE>
@@ -316,7 +316,7 @@ class GitProxy(object):
             sage: os.chdir(config['git']['src'])
 
             sage: git._read_output('status')
-            'On branch master\n\nInitial commit\n\nnothing to commit (create/copy files and use "git add" to track)\n'
+            'On branch main\n\nInitial commit\n\nnothing to commit (create/copy files and use "git add" to track)\n'
             sage: git._read_output('status',foo=True) # --foo is not a valid parameter
             Traceback (most recent call last):
             ...
@@ -521,7 +521,7 @@ class GitInterface(ReadStdoutGitProxy):
             sage: git.super_silent.checkout("-b","branch1")
             sage: with open("file","w") as f: f.write("version 1")
             sage: git.silent.commit("-am","second commit")
-            sage: git.super_silent.checkout("master")
+            sage: git.super_silent.checkout("main")
             sage: git.super_silent.checkout("-b","branch2")
             sage: with open("file","w") as f: f.write("version 2")
             sage: git.silent.commit("-am","conflicting commit")
@@ -611,7 +611,7 @@ class GitInterface(ReadStdoutGitProxy):
             sage: git.super_silent.checkout("-b","branch1")
             sage: with open("file","w") as f: f.write("version 1")
             sage: git.silent.commit("-am","second commit")
-            sage: git.super_silent.checkout("master")
+            sage: git.super_silent.checkout("main")
             sage: git.super_silent.checkout("-b","branch2")
             sage: with open("file","w") as f: f.write("version 2")
             sage: git.silent.commit("-am","conflicting commit")
@@ -699,7 +699,7 @@ class GitInterface(ReadStdoutGitProxy):
             sage: open('ignored_dir/untracked','w').close()
             sage: with open('tracked','w') as f: f.write('version 0')
             sage: git.echo.status()
-            On branch master
+            On branch main
             Changes not staged for commit:
               (use "git add <file>..." to update what will be committed)
               (use "git checkout -- <file>..." to discard changes in working directory)
@@ -731,7 +731,7 @@ class GitInterface(ReadStdoutGitProxy):
 
             sage: git.clean_wrapper()
             sage: git.echo.status()
-            On branch master
+            On branch main
             Untracked files:
               (use "git add <file>..." to include in what will be committed)
             <BLANKLINE>
@@ -792,18 +792,18 @@ class GitInterface(ReadStdoutGitProxy):
             sage: git.super_silent.checkout("-b","branch1")
             sage: with open("file","w") as f: f.write("version 1")
             sage: git.silent.commit("-am","second commit")
-            sage: git.super_silent.checkout("master")
+            sage: git.super_silent.checkout("main")
             sage: git.super_silent.checkout("-b","branch2")
             sage: with open("file","w") as f: f.write("version 2")
             sage: git.silent.commit("-am","conflicting commit")
 
-            sage: git.is_child_of('master', 'branch2')
+            sage: git.is_child_of('main', 'branch2')
             False
-            sage: git.is_child_of('branch2', 'master')
+            sage: git.is_child_of('branch2', 'main')
             True
             sage: git.is_child_of('branch1', 'branch2')
             False
-            sage: git.is_child_of('master', 'master')
+            sage: git.is_child_of('main', 'main')
             True
         """
         return self.is_ancestor_of(b, a)
@@ -832,18 +832,18 @@ class GitInterface(ReadStdoutGitProxy):
             sage: git.super_silent.checkout("-b","branch1")
             sage: with open("file","w") as f: f.write("version 1")
             sage: git.silent.commit("-am","second commit")
-            sage: git.super_silent.checkout("master")
+            sage: git.super_silent.checkout("main")
             sage: git.super_silent.checkout("-b","branch2")
             sage: with open("file","w") as f: f.write("version 2")
             sage: git.silent.commit("-am","conflicting commit")
 
-            sage: git.is_ancestor_of('master', 'branch2')
+            sage: git.is_ancestor_of('main', 'branch2')
             True
-            sage: git.is_ancestor_of('branch2', 'master')
+            sage: git.is_ancestor_of('branch2', 'main')
             False
             sage: git.is_ancestor_of('branch1', 'branch2')
             False
-            sage: git.is_ancestor_of('master', 'master')
+            sage: git.is_ancestor_of('main', 'main')
             True
         """
         return self.merge_base(a, b) == self.rev_parse(a)
@@ -957,7 +957,7 @@ class GitInterface(ReadStdoutGitProxy):
             sage: git.super_silent.checkout('-b', 'branch')
             sage: env['GIT_COMMITTER_DATE'] = time.strftime("%Y-%m-%dT%H:%M:20")
             sage: git.silent.commit('-m','second commit','--allow-empty', env=env)
-            sage: git.super_silent.checkout('-b', 'other', 'master')
+            sage: git.super_silent.checkout('-b', 'other', 'main')
             sage: env['GIT_COMMITTER_DATE'] = time.strftime("%Y-%m-%dT%H:%M:30")
             sage: git.silent.commit('-m','third commit','--allow-empty', env=env)
 
@@ -973,16 +973,16 @@ class GitInterface(ReadStdoutGitProxy):
             sage: git2.super_silent.checkout("branch")
             sage: git2.echo.branch("-a")
             * branch
-              master
+              main
               remotes/git/branch
-              remotes/git/master
+              remotes/git/main
               remotes/git/other
 
             sage: git2.local_branches()
-            ['master', 'branch']
+            ['main', 'branch']
             sage: os.chdir(config['git']['src'])
             sage: git.local_branches()
-            ['other', 'branch', 'master']
+            ['other', 'branch', 'main']
         """
         result = self.for_each_ref('refs/heads/', sort='-committerdate', format="%(refname)")
         return [head[11:] for head in result.splitlines()]
@@ -1011,14 +1011,14 @@ class GitInterface(ReadStdoutGitProxy):
             sage: git.silent.branch('branch2')
 
             sage: git.current_branch()
-            'master'
+            'main'
             sage: git.super_silent.checkout('branch1')
             sage: git.current_branch()
             'branch1'
 
         If ``HEAD`` is detached::
 
-            sage: git.super_silent.checkout('master~')
+            sage: git.super_silent.checkout('main~')
             sage: git.current_branch()
             Traceback (most recent call last):
             ...
@@ -1188,7 +1188,7 @@ for git_cmd_ in (
             sage: git = GitInterface(config["git"], DoctestUserInterface(config["UI"]))
             sage: os.chdir(config['git']['src'])
             sage: git.echo.status() # indirect doctest
-            On branch master
+            On branch main
             <BLANKLINE>
             Initial commit
             <BLANKLINE>

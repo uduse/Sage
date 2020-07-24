@@ -208,7 +208,7 @@ doesn't hurt::
     ...
     128
 
-Even though the doctester master process has exited, the child process
+Even though the doctester main process has exited, the child process
 is still alive, but it should be killed automatically
 in max(20, 120 * 0.05) = 20 seconds::
 

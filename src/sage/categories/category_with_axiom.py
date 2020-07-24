@@ -1450,7 +1450,7 @@ reciprocally. To avoid this, the :meth:`Category.join` method itself
 does not use :meth:`Category._with_axiom` to add axioms, but its
 sister :meth:`Category._with_axiom_as_tuple`; the latter builds a
 tuple of categories that should be joined together but leaves the
-computation of the join to its caller, the master join calculation.
+computation of the join to its caller, the main join calculation.
 
 Adding an axiom ``A`` to a category ``Cs()`` implementing it
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

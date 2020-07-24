@@ -37,7 +37,7 @@ import pexpect
 import time
 import cleaner
 
-from sage.groups.perm_gps.cubegroup import index2singmaster
+from sage.groups.perm_gps.cubegroup import index2singmain
 
 
 
@@ -61,7 +61,7 @@ optimal_solver_format = "UF UR UB UL DF DR DB DL FR FL BR BL UFR URB UBL ULF DRF
 
 class SingNot:
     """
-    This class is to resolve difference between various Singmaster notation.
+    This class is to resolve difference between various Singmain notation.
     Case is ignored, and the second and third letters may be swapped.
 
     EXAMPLE:
@@ -82,7 +82,7 @@ class SingNot:
         return hash(self.canonical)
 
 # This is our list
-singmaster_list = [''] + [SingNot(index2singmaster(i+1)) for i in range(48)]; singmaster_list
+singmain_list = [''] + [SingNot(index2singmain(i+1)) for i in range(48)]; singmain_list
 
 class OptimalSolver:
     """
@@ -152,8 +152,8 @@ class OptimalSolver:
         L = []
         optimal_solver_list = [SingNot(x) for x in optimal_solver_tokens]
         for f in optimal_solver_format.split(" "):
-            ix = facets[singmaster_list.index(SingNot(f))-1]
-            facet = singmaster_list[ix]
+            ix = facets[singmain_list.index(SingNot(f))-1]
+            facet = singmain_list[ix]
             L.append(optimal_solver_list[optimal_solver_list.index(facet)])
         return " ".join([str(f) for f in L])
 

@@ -45,7 +45,7 @@ GIT_BRANCH_REGEX = re.compile(
     r'[^\040\177 ~^:?*[]+(?<!\.lock)(?<!/)(?<!\.)$')
 
 # the name of the branch which holds the vanilla clone of sage
-MASTER_BRANCH = "master"
+MASTER_BRANCH = "main"
 USER_BRANCH = re.compile(r"^u/([^/]+)/")
 
 COMMIT_GUIDE=r"""
@@ -275,7 +275,7 @@ class SageDev(MercurialPatchMixin):
         specified on trac will be pulled to ``branch`` unless ``base`` is
         set to something other than the empty string ``''``. If the trac ticket
         does not specify a branch yet or if ``base`` is not the empty string,
-        then a new one will be created from ``base`` (per default, the master
+        then a new one will be created from ``base`` (per default, the main
         branch).
 
         If ``ticket`` is not specified, then checkout the local branch
@@ -291,7 +291,7 @@ class SageDev(MercurialPatchMixin):
 
         - ``base`` -- a string or ``None``, a branch on which to base a new
           branch if one is going to be created (default: the empty string
-          ``''`` to create the new branch from the master branch), or a ticket;
+          ``''`` to create the new branch from the main branch), or a ticket;
           if ``base`` is set to ``None``, then the current ticket is used. If
           ``base`` is a ticket, then the corresponding dependency will be
           added. Must be ``''`` if ``ticket`` is not specified.
@@ -371,7 +371,7 @@ class SageDev(MercurialPatchMixin):
         specified on trac will be pulled to ``branch`` unless ``base`` is
         set to something other than the empty string ``''``. If the trac ticket
         does not specify a branch yet or if ``base`` is not the empty string,
-        then a new one will be created from ``base`` (per default, the master
+        then a new one will be created from ``base`` (per default, the main
         branch).
 
         INPUT:
@@ -383,7 +383,7 @@ class SageDev(MercurialPatchMixin):
 
         - ``base`` -- a string or ``None``, a branch on which to base a new
           branch if one is going to be created (default: the empty string
-          ``''`` to create the new branch from the master branch), or a ticket;
+          ``''`` to create the new branch from the main branch), or a ticket;
           if ``base`` is set to ``None``, then the current ticket is used. If
           ``base`` is a ticket, then the corresponding dependency will be
           added.
@@ -679,7 +679,7 @@ class SageDev(MercurialPatchMixin):
             #  (use "sage --dev checkout --ticket=9" to create a new local branch)
             9
 
-        The new branch is based on master which is not the same commit
+        The new branch is based on main which is not the same commit
         as the current branch ``ticket/7``, so it is not a valid
         option to ``'keep'`` changes::
 
@@ -723,7 +723,7 @@ class SageDev(MercurialPatchMixin):
             if base != MASTER_BRANCH:
                 raise SageDevValueError("base must not be specified if branch is an existing branch")
             if branch == MASTER_BRANCH:
-                raise SageDevValueError("branch must not be the master branch")
+                raise SageDevValueError("branch must not be the main branch")
 
             self._set_local_branch_for_ticket(ticket, branch)
             self._UI.debug('The branch for ticket #{0} is now "{1}".', ticket, branch)
@@ -759,9 +759,9 @@ class SageDev(MercurialPatchMixin):
             if base == '':
                 base = MASTER_BRANCH
                 if remote_branch is None: # branch field is not set on ticket
-                    # create a new branch off master
+                    # create a new branch off main
                     self._UI.debug('The branch field on ticket #{0} is not set. Creating a new branch'
-                                   ' "{1}" off the master branch "{2}".', ticket, branch, MASTER_BRANCH)
+                                   ' "{1}" off the main branch "{2}".', ticket, branch, MASTER_BRANCH)
                     self.git.silent.branch(branch, MASTER_BRANCH)
                 else:
                     # pull the branch mentioned on trac
@@ -1408,7 +1408,7 @@ class SageDev(MercurialPatchMixin):
 
         # If we add restrictions on which branches users may push to, we should append them here.
         m = USER_BRANCH.match(remote_branch)
-        if remote_branch == 'master' or m and m.groups()[0] != self.trac._username:
+        if remote_branch == 'main' or m and m.groups()[0] != self.trac._username:
             self._UI.warning('The remote branch "{0}" is not in your user scope. You probably'
                              ' do not have permission to push to that branch.', remote_branch)
             self._UI.info(['', 'You can always use "u/{1}/{0}" as the remote branch name.'],
@@ -2561,7 +2561,7 @@ class SageDev(MercurialPatchMixin):
         self._check_ticket_name(ticket, exists=True)
         ticket = self._ticket_from_ticket_name(ticket)
 
-        self._is_master_uptodate(action_if_not="warning")
+        self._is_main_uptodate(action_if_not="warning")
 
         from sage.env import TRAC_SERVER_URI
         header = "Ticket #{0} ({1})".format(ticket, TRAC_SERVER_URI + '/ticket/' + str(ticket))
@@ -2588,8 +2588,8 @@ class SageDev(MercurialPatchMixin):
         if self._has_local_branch_for_ticket(ticket):
             branch = self._local_branch_for_ticket(ticket)
             merge_base_local = self.git.merge_base(MASTER_BRANCH, branch).splitlines()[0]
-            master_to_branch = commits(merge_base_local, branch)
-            local_summary = 'Your branch "{0}" has {1} commits.'.format(branch, len(master_to_branch))
+            main_to_branch = commits(merge_base_local, branch)
+            local_summary = 'Your branch "{0}" has {1} commits.'.format(branch, len(main_to_branch))
         else:
             local_summary = "You have no local branch for this ticket"
 
@@ -2602,14 +2602,14 @@ class SageDev(MercurialPatchMixin):
             else:
                 self.git.super_silent.fetch(self.git._repository_anonymous, ticket_branch)
                 merge_base_ticket = self.git.merge_base(MASTER_BRANCH, 'FETCH_HEAD').splitlines()[0]
-                master_to_ticket = commits(merge_base_ticket, 'FETCH_HEAD')
+                main_to_ticket = commits(merge_base_ticket, 'FETCH_HEAD')
                 ticket_summary = 'The trac ticket points to the' \
-                    ' branch "{0}" which has {1} commits.'.format(ticket_branch, len(master_to_ticket))
+                    ' branch "{0}" which has {1} commits.'.format(ticket_branch, len(main_to_ticket))
                 if branch is not None:
                     if merge_base_local != merge_base_ticket:
                         ticket_summary += ' The branch can not be compared to your local' \
                             ' branch "{0}" because the branches are based on different versions' \
-                            ' of sage (i.e. the "master" branch).'
+                            ' of sage (i.e. the "main" branch).'
                     else:
                         ticket_to_local = commits('FETCH_HEAD', branch)
                         local_to_ticket = commits(branch, 'FETCH_HEAD')
@@ -2623,14 +2623,14 @@ class SageDev(MercurialPatchMixin):
             local_to_remote = None
             self.git.super_silent.fetch(self.git._repository_anonymous, remote_branch)
             merge_base_remote = self.git.merge_base(MASTER_BRANCH, 'FETCH_HEAD').splitlines()[0]
-            master_to_remote = commits(merge_base_remote, 'FETCH_HEAD')
+            main_to_remote = commits(merge_base_remote, 'FETCH_HEAD')
             remote_summary = 'Your remote branch "{0}" has {1} commits.'.format(
-                remote_branch, len(master_to_remote))
+                remote_branch, len(main_to_remote))
             if branch is not None:
                 if merge_base_remote != merge_base_local:
                     remote_summary += ' The branch can not be compared to your local' \
                         ' branch "{0}" because the branches are based on different version' \
-                        ' of sage (i.e. the "master" branch).'
+                        ' of sage (i.e. the "main" branch).'
                 else:
                     remote_to_local = commits('FETCH_HEAD', branch)
                     local_to_remote = commits(branch, 'FETCH_HEAD')
@@ -2645,7 +2645,7 @@ class SageDev(MercurialPatchMixin):
 
     def prune_tickets(self):
         r"""
-        Remove branches for tickets that are already merged into master.
+        Remove branches for tickets that are already merged into main.
 
         .. SEEALSO::
 
@@ -2672,7 +2672,7 @@ class SageDev(MercurialPatchMixin):
             #  Use "sage --dev merge" to include another ticket/branch.
             #  Use "sage --dev commit" to save changes into a new commit.
             sage: dev.tickets()
-                : master
+                : main
             * #1: ticket/1 summary
 
         With a commit on it, the branch is not abandoned::
@@ -2682,13 +2682,13 @@ class SageDev(MercurialPatchMixin):
             sage: dev.git.super_silent.commit(message="added tracked")
             sage: dev.prune_tickets()
             sage: dev.tickets()
-                : master
+                : main
             * #1: ticket/1 summary
 
-        After merging it to the master branch, it is abandoned. This does not
+        After merging it to the main branch, it is abandoned. This does not
         work, because we cannot move the current branch::
 
-            sage: dev.git.super_silent.checkout("master")
+            sage: dev.git.super_silent.checkout("main")
             sage: dev.git.super_silent.merge("ticket/1")
 
             sage: dev.git.super_silent.checkout("ticket/1")
@@ -2696,7 +2696,7 @@ class SageDev(MercurialPatchMixin):
             Abandoning #1.
             Cannot delete "ticket/1": is the current branch.
             <BLANKLINE>
-            #  (use "sage --dev vanilla" to switch to the master branch)
+            #  (use "sage --dev vanilla" to switch to the main branch)
 
         Now, the branch is abandoned::
 
@@ -2705,7 +2705,7 @@ class SageDev(MercurialPatchMixin):
             Abandoning #1.
             Moved your branch "ticket/1" to "trash/ticket/1".
             sage: dev.tickets()
-            : master
+            : main
             sage: dev.prune_tickets()
         """
         for branch in self.git.local_branches():
@@ -2763,19 +2763,19 @@ class SageDev(MercurialPatchMixin):
             sage: dev.abandon(1)
             Cannot delete "ticket/1": is the current branch.
             <BLANKLINE>
-            #  (use "sage --dev vanilla" to switch to the master branch)
+            #  (use "sage --dev vanilla" to switch to the main branch)
             sage: dev.vanilla()
             sage: dev.abandon(1)
             Moved your branch "ticket/1" to "trash/ticket/1".
             <BLANKLINE>
-            #  Use "sage --dev checkout --ticket=1 --base=master" to restart working on #1 with a clean copy of the master branch.
+            #  Use "sage --dev checkout --ticket=1 --base=main" to restart working on #1 with a clean copy of the main branch.
 
         Start to work on a new branch for this ticket::
 
             sage: from sage.dev.sagedev import MASTER_BRANCH
             sage: UI.append("y")
             sage: dev.checkout(ticket=1, base=MASTER_BRANCH)
-            About to create a new branch for #1 based on "master". However, the trac ticket
+            About to create a new branch for #1 based on "main". However, the trac ticket
             for #1 already refers to the branch "u/doctest/ticket/1". The new branch will
             not contain any work that has already been done on "u/doctest/ticket/1".
             Create fresh branch? [yes/No] y
@@ -2809,14 +2809,14 @@ class SageDev(MercurialPatchMixin):
             self._check_local_branch_name(branch, exists=True)
 
             if branch == MASTER_BRANCH:
-                self._UI.error("Cannot delete the master branch.")
+                self._UI.error("Cannot delete the main branch.")
                 raise OperationCancelledError("protecting the user")
 
             from git_error import DetachedHeadError
             try:
                 if self.git.current_branch() == branch:
                     self._UI.error('Cannot delete "{0}": is the current branch.', branch)
-                    self._UI.info(['', '(use "{0}" to switch to the master branch)'],
+                    self._UI.info(['', '(use "{0}" to switch to the main branch)'],
                                   self._format_command("vanilla"))
                     raise OperationCancelledError("can not delete current branch")
             except DetachedHeadError:
@@ -2833,7 +2833,7 @@ class SageDev(MercurialPatchMixin):
             self._set_dependencies_for_ticket(ticket, None)
             if helpful:
                 self._UI.info(['',
-                               'Use "{0}" to restart working on #{1} with a clean copy of the master branch.'],
+                               'Use "{0}" to restart working on #{1} with a clean copy of the main branch.'],
                                self._format_command("checkout", ticket=ticket, base=MASTER_BRANCH), ticket)
 
     def gather(self, branch, *tickets_or_branches):
@@ -2972,7 +2972,7 @@ class SageDev(MercurialPatchMixin):
         INPUT:
 
         - ``ticket_or_branch`` -- an integer or strings (default:
-          ``'master'``); for an integer or string identifying a ticket, the
+          ``'main'``); for an integer or string identifying a ticket, the
           branch on the trac ticket gets merged (or the local branch for the
           ticket, if ``pull`` is ``False``), for the name of a local or
           remote branch, that branch gets merged. If ``'dependencies'``, the
@@ -3337,7 +3337,7 @@ class SageDev(MercurialPatchMixin):
         Create some tickets::
 
             sage: dev.tickets()
-            * : master
+            * : main
 
             sage: UI.append("Summary: summary\ndescription")
             sage: dev.create_ticket()
@@ -3362,7 +3362,7 @@ class SageDev(MercurialPatchMixin):
             #  Use "sage --dev merge" to include another ticket/branch.
             #  Use "sage --dev commit" to save changes into a new commit.
             sage: dev.tickets()
-                : master
+                : main
               #1: ticket/1 summary
             * #2: ticket/2 summary
         """
@@ -3406,7 +3406,7 @@ class SageDev(MercurialPatchMixin):
         INPUT:
 
         - ``release`` -- a string or decimal giving the release name (default:
-          ``'master'``).  In fact, any tag, commit or branch will work.  If the
+          ``'main'``).  In fact, any tag, commit or branch will work.  If the
           tag does not exist locally an attempt to fetch it from the server
           will be made.
 
@@ -3432,7 +3432,7 @@ class SageDev(MercurialPatchMixin):
         Go to a sage release::
 
             sage: dev.git.current_branch()
-            'master'
+            'main'
             sage: dev.vanilla()
             sage: dev.git.current_branch()
             Traceback (most recent call last):
@@ -3469,7 +3469,7 @@ class SageDev(MercurialPatchMixin):
         INPUT:
 
         - ``base`` -- a string; show the differences against the latest
-          ``'commit'`` (the default), against the branch ``'master'`` (or any
+          ``'commit'`` (the default), against the branch ``'main'`` (or any
           other branch name), or the merge of the ``'dependencies'`` of the
           current ticket (if the dependencies merge cleanly)
 
@@ -3713,7 +3713,7 @@ class SageDev(MercurialPatchMixin):
                 self._UI.error("Cannot create merge of dependencies because working directory is not clean.")
                 raise
 
-            self._is_master_uptodate(action_if_not="warning")
+            self._is_main_uptodate(action_if_not="warning")
 
             branch = self.git.current_branch()
             merge_base = self.git.merge_base(branch, MASTER_BRANCH).splitlines()[0]
@@ -3739,7 +3739,7 @@ class SageDev(MercurialPatchMixin):
                             self._UI.info(['Use "{2}" to merge latest version of Sage into your branch.', ''],
                                           remote_branch, branch, self._format_command("merge"))
                         if self.git.is_child_of(merge_base, 'FETCH_HEAD'):
-                            self._UI.debug('Dependency #{0} has already been merged into the master'
+                            self._UI.debug('Dependency #{0} has already been merged into the main'
                                            ' branch of your version of sage.', dependency)
                         else:
                             if not self.git.is_child_of(branch, 'FETCH_HEAD'):
@@ -3778,7 +3778,7 @@ class SageDev(MercurialPatchMixin):
                 pass
             else:
                 self._check_remote_branch_name(base, exists=True)
-                self._is_master_uptodate(action_if_not="warning")
+                self._is_main_uptodate(action_if_not="warning")
                 self.git.super_silent.fetch(self.git._repository_anonymous, base)
                 base = 'FETCH_HEAD'
 
@@ -4100,22 +4100,22 @@ class SageDev(MercurialPatchMixin):
             pass # do not bother the user again, probably the key has been uploaded manually already
         self.config['git']['ssh_key_set'] = "True"
 
-    def _is_master_uptodate(self, action_if_not=None):
+    def _is_main_uptodate(self, action_if_not=None):
         r"""
-        Check whether the master branch is up to date with respect to the
-        remote master branch.
+        Check whether the main branch is up to date with respect to the
+        remote main branch.
 
         INPUT:
 
         - ``action_if_not`` -- one of ``'error'``, ``'warning'``, or ``None``
-          (default: ``None``), the action to perform if master is not up to
+          (default: ``None``), the action to perform if main is not up to
           date. If ``'error'``, then this raises a ``SageDevValueError``,
           otherwise return a boolean and print a warning if ``'warning'``.
 
         .. NOTE::
 
             In the transitional period from hg to git, this is a nop. This will
-            change as soon as ``master`` is our actual master branch.
+            change as soon as ``main`` is our actual main branch.
 
         TESTS:
 
@@ -4123,51 +4123,51 @@ class SageDev(MercurialPatchMixin):
 
             sage: from sage.dev.test.sagedev import single_user_setup
             sage: dev, config, UI, server = single_user_setup()
-            sage: dev._wrap("_is_master_uptodate")
+            sage: dev._wrap("_is_main_uptodate")
 
-        Initially ``master`` is up to date::
+        Initially ``main`` is up to date::
 
-            sage: dev._is_master_uptodate()
+            sage: dev._is_main_uptodate()
             True
 
-        When the remote ``master`` branches changes, this is not the case
+        When the remote ``main`` branches changes, this is not the case
         anymore::
 
             sage: server.git.super_silent.commit(allow_empty=True, message="a commit")
-            sage: dev._is_master_uptodate()
+            sage: dev._is_main_uptodate()
             False
-            sage: dev._is_master_uptodate(action_if_not="warning")
-            Your version of sage, i.e., your "master" branch, is out of date. Your command might fail or produce unexpected results.
+            sage: dev._is_main_uptodate(action_if_not="warning")
+            Your version of sage, i.e., your "main" branch, is out of date. Your command might fail or produce unexpected results.
             False
-            sage: dev._is_master_uptodate(action_if_not="error")
-            Your version of sage, i.e., your "master" branch, is out of date.
+            sage: dev._is_main_uptodate(action_if_not="error")
+            Your version of sage, i.e., your "main" branch, is out of date.
 
-        We upgrade the local master::
+        We upgrade the local main::
 
-            sage: dev.pull(ticket_or_remote_branch="master")
-            Merging the remote branch "master" into the local branch "master".
+            sage: dev.pull(ticket_or_remote_branch="main")
+            Merging the remote branch "main" into the local branch "main".
             Automatic merge successful.
             <BLANKLINE>
             #  (use "sage --dev commit" to commit your merge)
-            sage: dev._is_master_uptodate()
+            sage: dev._is_main_uptodate()
             True
-            sage: dev._is_master_uptodate(action_if_not="warning")
+            sage: dev._is_main_uptodate(action_if_not="warning")
             True
-            sage: dev._is_master_uptodate(action_if_not="error")
+            sage: dev._is_main_uptodate(action_if_not="error")
             True
         """
-        remote_master = self._remote_branch_for_branch(MASTER_BRANCH)
-        if remote_master is not None:
-            self.git.fetch(self.git._repository_anonymous, remote_master)
+        remote_main = self._remote_branch_for_branch(MASTER_BRANCH)
+        if remote_main is not None:
+            self.git.fetch(self.git._repository_anonymous, remote_main)
             # In the transition from hg to git we are using
-            # public/sage-git/master instead of master on the remote end.
+            # public/sage-git/main instead of main on the remote end.
             # This check makes sure that we are not printing any confusing
-            # messages unless master is actually the latest (development)
+            # messages unless main is actually the latest (development)
             # version of sage.
             if self.git.is_child_of('FETCH_HEAD', MASTER_BRANCH):
                 if self.git.commit_for_ref('FETCH_HEAD') != self.git.commit_for_branch(MASTER_BRANCH):
                     msg = ('To upgrade your "{0}" branch to the latest version, use "{1}".',
-                           MASTER_BRANCH, self._format_command("pull", ticket_or_branch=remote_master,
+                           MASTER_BRANCH, self._format_command("pull", ticket_or_branch=remote_main,
                                                                branch=MASTER_BRANCH))
                     if action_if_not is None:
                         pass
@@ -4208,7 +4208,7 @@ class SageDev(MercurialPatchMixin):
             False
             sage: dev._is_ticket_name("#1000")
             True
-            sage: dev._is_ticket_name("master")
+            sage: dev._is_ticket_name("main")
             False
             sage: dev._is_ticket_name(1000, exists=True) # optional: internet
             True
@@ -4259,10 +4259,10 @@ class SageDev(MercurialPatchMixin):
             ...
             SageDevValueError: Invalid ticket name "1 000".
             sage: dev._check_ticket_name("#1000")
-            sage: dev._check_ticket_name("master")
+            sage: dev._check_ticket_name("main")
             Traceback (most recent call last):
             ...
-            SageDevValueError: Invalid ticket name "master".
+            SageDevValueError: Invalid ticket name "main".
             sage: dev._check_ticket_name(1000, exists=True) # optional: internet
             sage: dev._check_ticket_name(2^30, exists=True) # optional: internet
             Traceback (most recent call last):
@@ -4582,10 +4582,10 @@ class SageDev(MercurialPatchMixin):
             'u/doctest/ticket/1'
             sage: dev._remote_branch_for_ticket("1")
             'u/doctest/ticket/1'
-            sage: dev._remote_branch_for_ticket("master")
+            sage: dev._remote_branch_for_ticket("main")
             Traceback (most recent call last):
             ...
-            SageDevValueError: "master" is not a valid ticket name.
+            SageDevValueError: "main" is not a valid ticket name.
 
             sage: UI.append("Summary: summary1\ndescription")
             sage: dev.create_ticket()

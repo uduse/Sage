@@ -563,13 +563,13 @@ def wilson_construction(OA,k,r,m,u,check=True,explain_construction=False):
         41
 
         sage: print designs.orthogonal_arrays.explain_construction(7,58)
-        Wilson's construction n=8.7+1+1 with master design OA(7+2,8)
+        Wilson's construction n=8.7+1+1 with main design OA(7+2,8)
         sage: print designs.orthogonal_arrays.explain_construction(9,115)
-        Wilson's construction n=13.8+11 with master design OA(9+1,13)
+        Wilson's construction n=13.8+11 with main design OA(9+1,13)
         sage: print wilson_construction(None,5,11,21,[[(5,5)]],explain_construction=True)
-        Brouwer-van Rees construction n=11.21+(5.5) with master design OA(5+1,11)
+        Brouwer-van Rees construction n=11.21+(5.5) with main design OA(5+1,11)
         sage: print wilson_construction(None,71,17,21,[[(4,9),(1,1)],[(9,9),(1,1)]],explain_construction=True)
-        Brouwer-van Rees construction n=17.21+(9.4+1.1)+(9.9+1.1) with master design OA(71+2,17)
+        Brouwer-van Rees construction n=17.21+(9.4+1.1)+(9.9+1.1) with main design OA(71+2,17)
 
     An example using the Brouwer-van Rees generalization::
 
@@ -596,24 +596,24 @@ def wilson_construction(OA,k,r,m,u,check=True,explain_construction=False):
         if not u:
             return ("Product of orthogonal arrays n={}.{}").format(r,m)
         elif all(len(uu) == 1 and uu[0][0] == 1 for uu in u):
-            return ("Wilson's construction n={}.{}+{} with master design OA({}+{},{})"
+            return ("Wilson's construction n={}.{}+{} with main design OA({}+{},{})"
                     .format(r, m, "+".join(str(x) for ((_,x),) in u), k, n_trunc, r))
         else:
-            return ("Brouwer-van Rees construction n={}.{}+{} with master design OA({}+{},{})"
+            return ("Brouwer-van Rees construction n={}.{}+{} with main design OA({}+{},{})"
                     .format(r, m,
                             "+".join("(" + "+".join(str(x)+"."+str(mul) for mul,x in uu) + ")"
                                      for uu in u),
                             k, n_trunc, r))
 
     if OA is None:
-        master_design = orthogonal_array(k+n_trunc,r,check=False)
+        main_design = orthogonal_array(k+n_trunc,r,check=False)
         matrix = [range(r)]*k
         for uu in u:
             uu = sum(x[1] for x in uu)
             matrix.append(range(uu)+[None]*(r-uu))
-        master_design = OA_relabel(master_design, k+n_trunc, r, matrix=matrix)
+        main_design = OA_relabel(main_design, k+n_trunc, r, matrix=matrix)
     else:
-        master_design = OA
+        main_design = OA
 
     for c in u:
         assert all(m_ij>=0 and h_size>=0 for m_ij,h_size in c)
@@ -641,7 +641,7 @@ def wilson_construction(OA,k,r,m,u,check=True,explain_construction=False):
     block_to_ij = lambda B: ((i,j) for i,j in enumerate(B[k:]) if j is not None)
 
     # The different profiles (set of mij associated with each block)
-    block_profiles = set(tuple(point_to_mij[i][j] for i,j in block_to_ij(B)) for B in master_design)
+    block_profiles = set(tuple(point_to_mij[i][j] for i,j in block_to_ij(B)) for B in main_design)
 
     # For each block meeting multipliers m_ij(0),...,m_ij(s) we need a
     # OA(k,m+\sum m_{ij(i)})-\sum OA(k,\sum m_{ij(i)})
@@ -654,7 +654,7 @@ def wilson_construction(OA,k,r,m,u,check=True,explain_construction=False):
 
     # Building the actual design !
     OA = []
-    for B in master_design:
+    for B in main_design:
         # The missing entries belong to the last n_trunc columns
         assert all(x is not None for x in B[:k])
 
@@ -2118,7 +2118,7 @@ class OAMainFunctions():
         EXAMPLE::
 
             sage: designs.orthogonal_arrays.explain_construction(9,565)
-            "Wilson's construction n=23.24+13 with master design OA(9+1,23)"
+            "Wilson's construction n=23.24+13 with main design OA(9+1,23)"
             sage: designs.orthogonal_arrays.explain_construction(10,154)
             'the database contains a (137,10;1,0;17)-quasi difference matrix'
         """
